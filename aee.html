@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power Electronics – PYQ Practice</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #4f9eff;
+    --accent2: #7c5cfc;
+    --correct: #22c55e;
+    --wrong: #ef4444;
+    --text: #e8ecf4;
+    --muted: #7a85a0;
+    --tag: #252d3f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .logo span { color: var(--muted); }
+  .score-badge {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: var(--muted);
+  }
+  .score-badge strong { color: var(--text); font-size: 15px; }
+  .header-try {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .header-try:hover,
+  .header-try.active {
+    background: rgba(79,158,255,0.12);
+  }
+  .header-try.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(79,158,255,0.22);
+  }
+  .progress-bar-wrap {
+    width: 140px; height: 4px;
+    background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 860px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    flex: 1;
+  }
+
+  /* UNIT SELECTOR */
+  .unit-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+  }
+  .unit-tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .unit-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .unit-tab.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+  }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .q-card.answered { border-color: var(--border); }
+
+  .q-meta {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--muted);
+    background: var(--tag); padding: 3px 8px; border-radius: 4px;
+  }
+  .q-source {
+    font-size: 11px; color: var(--accent2);
+    background: rgba(124,92,252,0.12); padding: 3px 8px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .q-text {
+    font-size: 15px; line-height: 1.65;
+    color: var(--text); margin-bottom: 20px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    display: flex; align-items: flex-start; gap: 12px;
+    color: var(--text);
+    font-size: 14px; line-height: 1.5;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.18s;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(79,158,255,0.07);
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    background: var(--tag); color: var(--muted);
+    min-width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .option-btn.correct {
+    background: rgba(34,197,94,0.12);
+    border-color: var(--correct);
+  }
+  .option-btn.correct .opt-letter {
+    background: var(--correct); color: #fff;
+  }
+  .option-btn.wrong {
+    background: rgba(239,68,68,0.1);
+    border-color: var(--wrong);
+  }
+  .option-btn.wrong .opt-letter {
+    background: var(--wrong); color: #fff;
+  }
+  .option-btn.reveal-correct {
+    background: rgba(34,197,94,0.07);
+    border-color: rgba(34,197,94,0.4);
+  }
+  .option-btn.reveal-correct .opt-letter {
+    background: rgba(34,197,94,0.3); color: var(--correct);
+  }
+
+  /* RESULT PILL */
+  .result-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 14px;
+    font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 20px;
+  }
+  .result-pill.correct { background: rgba(34,197,94,0.15); color: var(--correct); }
+  .result-pill.wrong { background: rgba(239,68,68,0.12); color: var(--wrong); }
+
+  /* SOLUTION BOX */
+  .solution-box {
+    margin-top: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    display: none;
+  }
+  .solution-box.visible { display: block; }
+  .solution-box strong { color: var(--text); }
+
+  /* NAV / CONTROLS */
+  .nav-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 8px; flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text); font-size: 13px;
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 9px 20px; border-radius: 8px;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent); color: #fff;
+  }
+  .btn.primary:hover { background: #3b8fee; }
+
+  .q-counter { font-size: 13px; color: var(--muted); }
+  .q-counter strong { color: var(--text); }
+
+  /* SUMMARY */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+  }
+  .summary-card h2 { font-size: 26px; margin-bottom: 8px; }
+  .summary-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .summary-stats {
+    display: flex; justify-content: center; gap: 32px; margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-val { font-size: 32px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .stat-val.green { color: var(--correct); }
+  .stat-val.red { color: var(--wrong); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* MODE SELECTOR */
+  .mode-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+  }
+  .mode-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted); font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 6px 16px; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mode-btn.active {
+    background: var(--surface2); border-color: var(--accent); color: var(--accent);
+  }
+
+  /* PAGINATION DOTS */
+  .dot-row {
+    display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 24px;
+  }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .dot.current { background: var(--accent); transform: scale(1.3); }
+  .dot.correct { background: var(--correct); }
+  .dot.wrong { background: var(--wrong); }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 600px) {
+    header { align-items: flex-start; gap: 12px; flex-direction: column; }
+    .score-badge { width: 100%; flex-wrap: wrap; }
+    .q-card { padding: 18px; }
+    .q-text { font-size: 14px; }
+    .summary-card { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PE<span>/</span>PYQ</div>
+  <div class="score-badge">
+    <span>Score: <strong id="hdr-score">0/0</strong></span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="hdr-progress" style="width:0%"></div>
+    </div>
+    <button class="header-try" id="mode-try" onclick="setMode('try')">Try Again</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Unit Tabs -->
+  <div class="unit-tabs" id="unit-tabs"></div>
+
+  <!-- Mode Bar -->
+  <div class="mode-bar">
+    <button class="mode-btn active" id="mode-one" onclick="setMode('one')">One by One</button>
+    <button class="mode-btn" id="mode-all" onclick="setMode('all')">All Questions</button>
+  </div>
+
+  <!-- Dot Row (one-by-one mode) -->
+  <div class="dot-row" id="dot-row"></div>
+
+  <!-- Questions Area -->
+  <div id="questions-area"></div>
+
+  <!-- Nav Bar (one-by-one) -->
+  <div class="nav-bar" id="nav-bar" style="display:none">
+    <button class="btn" onclick="navigate(-1)">← Prev</button>
+    <span class="q-counter">Q <strong id="q-idx">1</strong> of <strong id="q-total">1</strong></span>
+    <button class="btn primary" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+// ─── ALL QUESTIONS DATA ───────────────────────────────────────────────────────
+const UNITS = [
+  {
+    name: "Unit 1: Semiconductor Devices",
+    short: "U1",
+    questions: [
+      { q: "The terms anode and cathode are not applicable to", opts: ["SCR","Diode","Triac","GTO"], ans: 2, src: "EPDCL-10" },
+      { q: "The rectifier-mode operation of triac can be overcome by increasing", opts: ["anode current","gate current","holding current","latching current"], ans: 1, src: "EPDCL-10" },
+      { q: "The equivalent capacitance of the depletion layer of reverse biased junction of an SCR is 30 pF, fired with a dv/dt of 150 V/μs. The capacitive current IC flowing through the junction is", opts: ["4.0 mA","4.5 mA","5.0 mA","5.5 mA"], ans: 1, src: "EPDCL-10" },
+      { q: "JFET is", opts: ["voltage-controlled device","current controlled device","resistance-controlled device","conductance-controlled device"], ans: 0, src: "EPDCL-10" },
+      { q: "The latching current of T1 is 1 mA. The minimum width of gate pulse required to turn on SCR is (L=0.2H, Vs=200V)", opts: ["2 μs","1 μs","0.5 μs","1.5 μs"], ans: 1, src: "APGenco-12" },
+      { q: "A thyristor (SCR) turns off when the", opts: ["Gate pulse is removed","Gate pulse is applied","Thyristor current is below holding value","Anode voltage is made negative"], ans: 2, src: "Transco-12" },
+      { q: "Turn-on of a thyristor (SCR) takes place when", opts: ["Anode to cathode voltage is positive","Anode to cathode voltage is negative","Positive current is applied to gate","Anode to cathode voltage is positive AND positive current pulse is applied to gate"], ans: 3, src: "Transco-12" },
+      { q: "A triac is a device which acts as a", opts: ["Diode in forward, thyristor in reverse","Thyristor in both directions","Diode in both directions","Thyristor in forward, diode in reverse"], ans: 1, src: "Transco-12" },
+      { q: "A GTO", opts: ["Requires special turn-off circuit like SCR","Can be turned off by removing gate pulse","Can be turned off by negative pulse to gate","Can be turned off by positive gate pulse"], ans: 2, src: "Transco-12" },
+      { q: "Which power device is NOT a current triggered device?", opts: ["Thyristor","GTO","Triac","MOSFET"], ans: 3, src: "Transco-12" },
+      { q: "The number of p-n junctions in a thyristor is", opts: ["1","2","3","4"], ans: 2, src: "Transco-12" },
+      { q: "The purpose of snubber circuit across a SCR is to", opts: ["Eliminate dv/dt","Increase dv/dt","Reduce dv/dt","Keep transient overvoltage at constant value"], ans: 2, src: "Transco-12" },
+      { q: "The main advantage of IGBT over SCR in power electronics", opts: ["Reduced weight","Self-commutating capability","Very high reliability","Self-cooling property"], ans: 1, src: "EPDCL-14" },
+      { q: "Ten thyristors are used in a string to withstand 15 kV DC. Worst-case steady state voltage = 1800 V. Derating factor is", opts: ["33.3%","15.5%","23.3%","16.66%"], ans: 3, src: "APSPDCL-14" },
+      { q: "The device which is used as voltage variable resistor", opts: ["BJT","JFET","SCR","PN-diode"], ans: 1, src: "APSPDCL-14" },
+      { q: "A SCR triggered by current pulse at gate-cathode can be turned OFF", opts: ["by applying a pulse to cathode","by applying a pulse to anode","by applying opposite polarity pulse to gate-cathode","by reversing polarity of anode and cathode voltage"], ans: 3, src: "ISRO-14" },
+      { q: "An IGBT has", opts: ["low input impedance and high conduction losses","low input impedance and low conduction losses","high input impedance and high conduction losses","high input impedance and low conduction losses"], ans: 3, src: "HMWS-15" },
+      { q: "Which of the following devices has the lowest 'maximum switching frequency'?", opts: ["GTO","IGBT","SCR","MOSFET"], ans: 2, src: "HMWS-15" },
+      { q: "SCR is more utilized compared to Triac because it is", opts: ["more capable in control","more efficient","available with higher ratings","comparatively cheaper"], ans: 0, src: "TSGenco-15", note:"Answer key shows a,c both correct" },
+      { q: "A snubber circuit is connected to a power semiconductor device to reduce the", opts: ["turn-on time","turn-off time","electrical stresses","thermal resistance"], ans: 2, src: "APTransco-17" },
+      { q: "Which phenomenon is present in thyristors but absent in BJT, MOSFET and IGBT?", opts: ["forward conduction","latching","forward blocking","reverse breakdown"], ans: 1, src: "APTransco-17" },
+      { q: "RC triggering is preferred over resistance triggering because", opts: ["it provides triggering at a precise instant","it gives a longer duration gate pulse","it enables triggering at larger firing angle","it protects SCR against high dv/dt"], ans: 2, src: "APTransco-17" },
+      { q: "The minimum value of anode current in an SCR required to sustain conduction with zero gate current is called", opts: ["Fundamental current","Latching current","Holding current","Base current"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "A semiconductor device TRIAC contains:", opts: ["two SCRs connected in reverse parallel","two BJTs connected in series","two SCRs connected in series","two SCRs connected in parallel"], ans: 0, src: "APPSC-20" },
+      { q: "If the amplitude of gate pulse applied to a thyristor is increased then", opts: ["Both delay and rise time would increase","The delay time would increase but rise time would decrease","The delay time would decrease and rise time would increase","The delay time would decrease and rise time would remain unaffected"], ans: 3, src: "TSSPDCL-22" },
+      { q: "The function of an R–C snubber circuit connected in parallel to an SCR is", opts: ["Limiting di/dt through the SCR","Triggering the SCR","Preventing over voltages across the SCR","Forced commutation of the SCR"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "Consider: A-Schottky diode, B-SCR, C-IGBT, D-BJT. Match: 1-Current ctrl on/off, 2-Majority carrier, 3-Voltage ctrl on/off, 4-Four-layer device. Correct match:", opts: ["A-2, B-1, C-3, D-4","A-1, B-2, C-3, D-4","A-2, B-4, C-3, D-1","A-4, B-2, C-1, D-3"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "Statements about a triac: A. Bidirectional current & voltage. B. Equivalent to two antiparallel thyristors. C. Can be turned on with both +ve and -ve gate currents. Which are true?", opts: ["A, B and C","A and B only","A and C only","B and C only"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "Which is an example for a voltage bidirectional two quadrant switch?", opts: ["SCR","BJT","Diode","MOSFET"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "The transfer characteristic of IGBT is a plot of (IC = collector current, VGE = gate-emitter voltage)", opts: ["VCE (y) vs IC (x)","VGE (y) vs IC (x)","IC (y) vs VCE (x)","IC (y) vs VGE (x)"], ans: 3, src: "TSSPDCL-AE-2023" },
+      { q: "Identify wrong statements: i. IGBT is voltage-controlled. ii. Power MOSFET is current controlled. iii. Turn OFF time of IGBT < MOSFET. iv. IGBT has high input impedance.", opts: ["i and ii only","ii and iii only","iii and iv only","iv and i only"], ans: 1, src: "TSGenco-24" },
+      { q: "MOSFETs are connected in parallel very easily because", opts: ["Conductivity modulation is absent","Its on-state voltage drop is very low","Its Gate-drive circuits are simple","It has positive temperature coefficient of on-state resistance"], ans: 3, src: "TSGenco-24" },
+    ]
+  },
+  {
+    name: "Unit 2: AC to DC Converters",
+    short: "U2",
+    questions: [
+      { q: "The peak inverse voltage of each diode in a single-phase bridge rectifier is", opts: ["4Vm","2Vm","Vm","Vm/π"], ans: 2, src: "EPDCL-10" },
+      { q: "In a single-phase full converter, for continuous conduction, each pair of SCRs conducts for", opts: ["π − α","π","α","π + α"], ans: 1, src: "EPDCL-10" },
+      { q: "A single-phase full converter can operate in", opts: ["4 quadrants","3 quadrants","2 quadrants","1 quadrant"], ans: 2, src: "EPDCL-10" },
+      { q: "A single phase fully controlled rectifier has average output voltage of 200 V when α=0. Output voltage when α=30° is approximately", opts: ["200 V","160 V","173 V","183 V"], ans: 2, src: "APGenco-12" },
+      { q: "A free-wheeling diode in a phase-controlled converter", opts: ["Decreases possibility of discontinuous conduction","Increases possibility of discontinuous conduction","Reduces power factor and causes over voltage","Causes over voltages"], ans: 0, src: "Transco-12" },
+      { q: "The ripple content of load current of a converter feeding RL load is decided by", opts: ["Load resistance alone","Load inductance alone","Both load resistance and load inductance","Neither resistance nor inductance"], ans: 2, src: "Transco-12" },
+      { q: "In a thyristorised converter, a freewheeling diode is used to", opts: ["Add to conduction current of thyristor","Oppose the thyristor conduction","Conduct current during off period of thyristor","Protect thyristor by providing a shunt path"], ans: 2, src: "Transco-12" },
+      { q: "In a 2-pulse bridge converter with free-wheeling diode, width of diode current pulse over one cycle is (α = firing angle)", opts: ["π + α","π − α","π","2α"], ans: 3, src: "EPDCL-14" },
+      { q: "The ripple factor of full-wave rectifier compared to half-wave rectifier without filter is", opts: ["half of half-wave","less than half of half-wave","equal to half-wave","more than half of half-wave"], ans: 1, src: "ISRO-14" },
+      { q: "A single-phase full converter with R-L load is triggered at 30°. Each device conducts for", opts: ["120°","150°","30°","180°"], ans: 3, src: "HMWS-15" },
+      { q: "The converters which operate only in two quadrants are", opts: ["dual converter and semi-converters","half-wave and semi converters","full wave and semi converters","half-wave and full-wave converters"], ans: 3, src: "HMWS-15" },
+      { q: "When firing angle α of a single phase fully controlled rectifier feeding constant DC current is 30°, the displacement power factor is", opts: ["1","0.5","1/√3","√3/2"], ans: 3, src: "TSGenco-15" },
+      { q: "A 3-phase fully controlled converter feeds DC load at constant current 150A. RMS current through each thyristor is", opts: ["50 A","100 A","150√2/√3","150/√3"], ans: 3, src: "TSGenco-15" },
+      { q: "Three-pulse converter with freewheeling diode. Operating range of converter is", opts: ["0° ≤ α ≤ 150°","60° ≤ α ≤ 120°","30° ≤ α ≤ 150°","180° ≤ α ≤ 360°"], ans: 0, src: "TSTransco-15" },
+      { q: "A four-quadrant operation requires two full converters connected in", opts: ["Series","Parallel","Back-to-back","Series Cascade"], ans: 2, src: "TSTransco-15" },
+      { q: "In a dual converter, the circulating current", opts: ["allows smooth reversal of load current but increases response time","does not allow smooth reversal, reduces response time","allows smooth reversal with improved speed of response","flows only if there is no interconnecting inductor"], ans: 2, src: "TSTransco-15" },
+      { q: "In a 3-phase converter circuit during commutation when one SCR in one phase is turned on to turn-off SCR in another phase, results in", opts: ["voltage notching","harmonic distortion","voltage sag","voltage swell"], ans: 0, src: "APTransco-17" },
+      { q: "The effect of source inductance on single phase and three phase full converters is to", opts: ["increase the load voltage","reduce ripple in load current","make discontinuous current as continuous","reduce the output voltage"], ans: 3, src: "APEPDCL-19" },
+      { q: "A 1-φ diode bridge rectifier supplied from 200V, 50 Hz, load = 100Ω. Peak inverse voltage of each diode is", opts: ["400/π V","200 V","200√2 V","400√2/π V"], ans: 2, src: "APEPDCL-19" },
+      { q: "A 1-φ diode bridge rectifier supplies highly inductive load (ripple-free current). AC supply side current waveform will be", opts: ["triangular","sinusoidal","constant DC","square"], ans: 3, src: "APEPDCL-19" },
+      { q: "Valve power rating of a converter circuit is given by the product of", opts: ["maximum voltage and maximum current","average voltage and average current","peak inverse voltage and rms value of current","peak inverse voltage and average value of current"], ans: 3, src: "APEPDCL-19" },
+      { q: "A 3-phase fully controlled rectifier fed from 200 V, 3-phase, 50 Hz supply is fired at α = 45°. The average output voltage is", opts: ["100√2/π V","200√2/π V","300/π V","600/π V"], ans: 3, src: "APSPDCL-19" },
+      { q: "In a three-phase full controlled converter, by using six SCRs, commutation occurs every", opts: ["60°","90°","45°","180°"], ans: 0, src: "APPSC-20" },
+      { q: "In a two pulse fully controlled bridge converter with freewheeling diode, width of freewheeling diode current pulse is (RL load, continuous conduction)", opts: ["π − α","π + α","2π","2α"], ans: 0, src: "TSSPDCL-22" },
+      { q: "A half wave thyristor converter supplies pure inductive load. Triggering angle = 100°, extinction angle will be", opts: ["260°","240°","200°","120°"], ans: 0, src: "TSSPDCL-22" },
+      { q: "A single-phase bridge rectifier is preferred over full-wave center tap rectifier because its", opts: ["ripple percentage is lower","power factor is higher","ratio of ripple frequency to line frequency is higher","peak inverse voltage across diode is lower"], ans: 3, src: "TSSPDCL-22" },
+      { q: "Fully controlled thyristor converter: dc output = 300V at α=0°. Output voltage at α=60° (continuous conduction)?", opts: ["150 V","300 V","210 V","100π V"], ans: 0, src: "TSSPDCL-22" },
+      { q: "What is the low order ripple frequency of output voltage of a 3-phase fully controlled bridge converter if ac input supply frequency is f?", opts: ["6f","f","2f","3f"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "An ideal diode in series with pure inductance supplied from ideal AC source. For what duration (radians) will the diode conduct?", opts: ["π/4","2π","π","π/2"], ans: 1, src: "TSPSC-AEE-23" },
+      { q: "Effect of AC side source inductance in SCR phase-controlled rectifier (α < π/2, RL load) compared to zero source impedance condition?", opts: ["Average output voltage may increase or decrease","Average output voltage increases","Average output voltage decreases","Average output voltage remains unchanged"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "A 3-phase diode bridge rectifier, 400 V, 50 Hz, resistive load 50Ω. Peak value of instantaneous load voltage would be", opts: ["400/√3 V","400√2 V","400 V","400√(2/3) V"], ans: 1, src: "TSPSC-AEE-23" },
+      { q: "Single-phase diode bridge rectifier, highly inductive load (ripple-free). Input current at AC side will be", opts: ["Square wave","Purely sinusoidal","Pure DC","Triangular wave"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "In single-phase SCR based full converter (continuous conduction, firing angle α), angle duration of conduction for each pair of SCRs in radians?", opts: ["α","π − α","π + α","π"], ans: 3, src: "TSPSC-AEE-23" },
+      { q: "Which single phase converter provides operation in all four-quadrant drives?", opts: ["Single-phase semi converter drives","Single-phase dual converter drives","Single-phase full converter drives","Single-phase half-wave converter drives"], ans: 1, src: "TSPSC-AEE-23" },
+      { q: "A single-phase full bridge diode rectifier with large output filter capacitance feeds resistive load. Input current is", opts: ["Purely sinusoidal and in-phase","Purely sinusoidal, PF < 1","Peaky and distorted with PF < 1","Peaky and distorted with PF = 1"], ans: 2, src: "TSGenco-24" },
+    ]
+  },
+  {
+    name: "Unit 3: DC to DC Converters",
+    short: "U3",
+    questions: [
+      { q: "The maximum DC voltage rating (VRDC) of a power diode is useful for selecting _____ diodes in a DC-DC chopper", opts: ["Feedback","Free Wheeling","Series","Zener"], ans: 0, src: "EPDCL-10" },
+      { q: "In dc choppers, per unit ripple is maximum when duty cycle is", opts: ["0.2","0.5","0.7","0.9"], ans: 1, src: "EPDCL-10" },
+      { q: "A load commutated chopper circuit has", opts: ["One thyristor","Two thyristors","Four thyristors","Six thyristors"], ans: 2, src: "EPDCL-10" },
+      { q: "A 200V dc-dc converter is turned ON for 30μs and turned off for 10μs. The output voltage will be", opts: ["200 V","150 V","175 V","120 V"], ans: 1, src: "APGenco-12" },
+      { q: "Which configuration is used for both motoring and regenerative braking?", opts: ["First quadrant chopper","Second quadrant chopper","Two quadrant chopper","Four quadrant chopper"], ans: 2, src: "EPDCL-14" },
+      { q: "If duty cycle of a dc chopper is α, then ripple factor is given by", opts: ["1/α","√(α/(1-α))","α","√((1-α)/α)"], ans: 3, src: "HMWS-15" },
+      { q: "Forced commutation is necessary in ________ circuits", opts: ["Inverter grade SCR","MOSFET Based","Converter grade SCR","GTO Based"], ans: 0, src: "HMWS-15" },
+      { q: "In a thyristor DC chopper, which type of commutation results in best performance?", opts: ["Voltage commutation","Current commutation","Load commutation","Supply commutation"], ans: 0, src: "TSGenco-15", note:"Answer key shows a,b both" },
+      { q: "A dc chopper feeds RL load. Per unit current ripple as duty ratio D increases progressively would", opts: ["increase progressively","decrease progressively","decrease to minimum at D=0.5 then increase","increase to maximum at D=0.5 then decrease"], ans: 3, src: "TSTransco-15" },
+      { q: "In a boost chopper, when the conducting switch is opened, rate of change of inductive current is", opts: ["Vs/L","V0/L","(Vs-V0)/L","(Vs+V0)/L"], ans: 2, src: "APTransco-17" },
+      { q: "In a dc-dc converter, the switch duty ratio is defined as", opts: ["turn off time / time period","sawtooth voltage / control voltage","control voltage / peak value of sawtooth voltage","control voltage / sawtooth voltage"], ans: 2, src: "APGenco-17" },
+      { q: "In DC chopper, per unit ripple is maximum when duty cycle α is", opts: ["0.5","0.2","1.0","0.7"], ans: 0, src: "APEPDCL-19" },
+      { q: "For a dc-dc boost converter circuit, order of connection of L, C, D, MOSFET switch between supply and load (left to right) is", opts: ["L-series, Switch-series, C-parallel, D-parallel","Switch-series, L-series, V-parallel, D-parallel","L-series, Switch-parallel, D-series, C-parallel","Switch-series, L-parallel, C-parallel, D-series"], ans: 2, src: "APTransco-19" },
+      { q: "In dc-dc buck converter, MOSFET triggered, rate of change of current in 400μH inductor = 7.5×10⁴ A/s. Input voltage = 50V. Output voltage is", opts: ["15 V","20 V","25 V","30 V"], ans: 1, src: "APTransco-19" },
+      { q: "A step-up dc chopper: input = 200V, avg output = 500V, conduction time = 150μs. Pulse width of output voltage is", opts: ["250 μs","150 μs","100 μs","110 μs"], ans: 2, src: "TSSPDCL-22" },
+      { q: "A step-up chopper delivers avg output = 100V from input = 60V (continuous source current). Operating duty ratio for the switch is", opts: ["1/3","0.6","0.4","2/3"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "If 'f' is switching frequency and 'α' is duty ratio, ripple voltage across capacitor in a Buck-boost converter is", opts: ["(1-α)/f²","(1-α)/f","α/f²","α/f"], ans: 3, src: "TSSPDCL-AE-2023" },
+      { q: "In chopper fed dc drives, choose correct combination of quadrants", opts: ["Type D operates in quadrants I and II","Type C operates in quadrants II and III","Type D operates in quadrants I and IV","Type C operates in quadrants I and IV"], ans: 2, src: "TSSPDCL-AE-2023" },
+      { q: "Identify the average output voltage of Buck regulators", opts: ["Va = KVs","Va = -VsK/(1-K)","Va = (1-K)Vs","Va = Vs/(1-K)"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "Identify the ripple factor expression", opts: ["Vrms/Vdc","√(Vrms/Vdc)","√(Vrms²-Vdc²)","√((Vrms/Vdc)²-1)"], ans: 3, src: "TSPSC-AEE-23" },
+      { q: "Identify correct increasing order of four quadrants of DC drives: I.Reverse motoring II.Forward braking III.Forward motoring IV.Reverse braking", opts: ["IV,III,II,I","II,III,IV,I","I,II,III,IV","III,II,I,IV"], ans: 3, src: "TSPSC-AEE-23" },
+      { q: "The operation of forward motoring comes under which quadrant?", opts: ["Quadrant I","Quadrant II","Quadrant IV","Quadrant III"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "Identify correct pairs in switching regulators: I. Buck: Is=KIa. II. Boost: Is=Ia(1-K). III. Buck-boost: Is=IaK/(1-K)", opts: ["I, II and III","I and II","I and II","II and III"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "In dc-dc switch-mode converters, which statements are true: (ii) Switching frequency = frequency of repetitive sawtooth waveform. (iv) Average current through capacitor in periodic steady state is zero.", opts: ["(i) and (ii) only","(ii) and (iii) only","(ii) and (iv) only","(iii) and (iv) only"], ans: 2, src: "TSGenco-24" },
+    ]
+  },
+  {
+    name: "Unit 4: DC to AC Converters",
+    short: "U4",
+    questions: [
+      { q: "In single pulse modulation of PWM inverters, to eliminate third harmonic, pulse width should be", opts: ["60°","90°","110°","120°"], ans: 3, src: "APGenco-12" },
+      { q: "Output of single-phase inverted bridge with 120° pulse width: which harmonics will be absent?", opts: ["5th and 7th","3rd, 5th, 7th","3rd, 9th, 15th","3rd, 7th"], ans: 2, src: "APSPDCL-12" },
+      { q: "An inverter converts", opts: ["dc voltage to dc voltage","ac voltage to dc voltage","dc voltage to ac voltage of constant frequency","dc voltage to ac voltage of variable frequency"], ans: 3, src: "Transco-12" },
+      { q: "A PWM switching scheme is used with a three-phase inverter to", opts: ["Reduce total harmonic distortion with modest filtering","Minimize the load on the dc side","Increase the life of batteries","Reduce low order harmonics and increase high order harmonics"], ans: 3, src: "EPDCL-14" },
+      { q: "In multiple pulse equal pulse width modulation with carrier frequency 15 kHz and required frequency 500 Hz, number of pulses per half cycle is", opts: ["5","10","12","15"], ans: 3, src: "APSPDCL-14" },
+      { q: "A single-phase voltage source square wave inverter feeds pure inductive load. Waveform of load current will be", opts: ["Sinusoidal","Rectangular","Trapezoidal","Triangular"], ans: 3, src: "TSGenco-15" },
+      { q: "A voltage source inverter is normally employed when", opts: ["source inductance is large and load inductance is small","source inductance is small and load inductance is large","both source and load inductances are small","both source and load inductances are large"], ans: 1, src: "TSGenco-15" },
+      { q: "A voltage source inverter will have better performance if its", opts: ["load inductance is small and source inductance is large","both load and source inductances are small","both load and source inductances are large","load inductance is large and source inductance is small"], ans: 3, src: "TSTransco-15" },
+      { q: "A 3-φ voltage source inverter operates in 180° conduction mode with star connected resistive load. Input dc = 100V. Peak-to-peak output line voltage is", opts: ["200/3 V","200 V","400/3 V","200√3 V"], ans: 1, src: "TSSPDCL-15" },
+      { q: "The fundamental component of single-phase full bridge inverter output voltage (Vs = DC input) is", opts: ["(Vs/π)sinωt","(2Vs/π)sinωt","(4Vs/3π)sinωt","(4Vs/π)sinωt"], ans: 3, src: "TSNPDCL-15" },
+      { q: "For single-phase full bridge inverter, Vs=220V DC, T=1ms feeding resistive load. Fundamental component of load voltage (rms) in volts is", opts: ["110√2","280√2","160√2","140√2"], ans: 3, src: "TSNPDCL-15" },
+      { q: "In dc-ac 3-phase MOSFET bridge inverter, switches 1,2,3 top half and 4,5,6 bottom half. Triggering sequence for balanced output is", opts: ["1,2,3,4,5,6","1,5,3,4,2,6","1,6,2,4,3,5","1,4,2,5,3,6"], ans: 2, src: "APGenco-17" },
+      { q: "In voltage source inverters", opts: ["Both V and I do not depend on Z","Load voltage V depends on Z whereas load current does not","Both V and I depend on Z","V does not depend on Z but I depends on Z"], ans: 3, src: "APEPDCL-19" },
+      { q: "A 1-φ voltage source inverter feeds pure inductive load with square wave source. Nature of load current is", opts: ["Triangular","Sinusoidal","Trapezoidal","Square-wave"], ans: 0, src: "APEPDCL-19" },
+      { q: "The firing sequence of switches for a 3-phase bridge inverter is: 1,5,6|2,6,1|3,1,2|4,2,3|5,3,4|6,4,5 each 60°. Mode of conduction is", opts: ["120° mode","180° mode","90° mode","240° mode"], ans: 1, src: "APSPDCL-19" },
+      { q: "Harmonics in three-phase inverters may be reduced with the help of", opts: ["both passive and active filters","passive filters","active filters","neither passive nor active filters"], ans: 0, src: "APPSC-20" },
+      { q: "In a three-phase bridge inverter, gating signals for the three phases have a phase difference of", opts: ["120°","60°","90°","180°"], ans: 0, src: "APPSC-20" },
+      { q: "In single pulse modulation of PWM inverter, if pulse width is 72° then", opts: ["Fifth harmonic will be eliminated","Third harmonic will be eliminated","Seventh harmonic will be eliminated","Eleventh harmonic will be eliminated"], ans: 0, src: "TSSPDCL-22" },
+      { q: "A current source inverter is obtained by inserting a large", opts: ["Capacitance in parallel with DC supply","Inductance in parallel with DC supply","Capacitance in series with DC supply","Inductance in series with DC supply"], ans: 3, src: "TSSPDCL-22" },
+      { q: "In a three-phase bridge inverter operating in square wave mode, output voltage waveforms contain", opts: ["Both even and odd harmonics, but no triplen","only triplen order harmonics","only odd order harmonics","only even order harmonics"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "Statements on 3-phase VSI: A. Require voltage-bidirectional two quadrant devices. B. PWM reduces frequency of harmonics. C. In 180° conduction mode, new switch is gated every 60°. Which are true?", opts: ["C only","A and B only","B and C only","A only"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "A voltage source inverter is most suitable when", opts: ["Both source and load have small inductances","Source has large inductance, load has small inductance","Source has small inductance, load has large inductance","Both source and load have large inductances"], ans: 2, src: "TSPSC-AEE-23" },
+      { q: "Single-phase Full-bridge Inverter: R=3Ω, XL=6Ω, XC=10Ω, Vdc=400V, f0=50Hz using SCRs. Switches are turned-off by", opts: ["Forced-Commutation","Load-Commutation","External Pulse-Commutation","Line-Commutation"], ans: 1, src: "TSGenco-24" },
+    ]
+  },
+  {
+    name: "Unit 5: AC to AC Converters",
+    short: "U5",
+    questions: [
+      { q: "In which of the following, both frequency and voltage can be controlled?", opts: ["Inverter, cycloconverter and AC voltage controller","Cycloconverter and AC voltage controller","Inverter and cycloconverter","Inverter and AC voltage controller"], ans: 2, src: "HMWS-15" },
+      { q: "The firing angle of 1-phase AC voltage controller is zero. With resistive load, input current wave shape is", opts: ["ac sine wave","constant dc wave","dc sine wave","ac square wave"], ans: 0, src: "HMWS-15" },
+      { q: "Output frequency of 1-phase cycloconverter is 12 Hz. Input frequency is", opts: ["30 Hz","60 Hz","40 Hz","50 Hz"], ans: 1, src: "HMWS-15" },
+      { q: "To get minimum harmonic distortion in output, a 3-φ to 3-φ cycloconverter requires", opts: ["12 SCRs","18 SCRs","36 SCRs","72 SCRs"], ans: 2, src: "TSSPDCL-15" },
+      { q: "1-φ full wave AC voltage controller: v=282.8sin(314t). Resistive load, output = 162V. Input power factor is", opts: ["0.573","0.900","0.810","0.656"], ans: 2, src: "TSSPDCL-15" },
+      { q: "Input current of AC voltage controller is sinusoidal. Load type is _____ and firing angle (radians) is", opts: ["capacitive... zero","capacitive... π/2","inductive... π","resistive... 2π"], ans: 3, src: "TSSPDCL-15" },
+      { q: "Statements: (a)Step-up cycloconverters require forced commutation. (b)Step-down cycloconverters operate on line commutation. Correct statements are", opts: ["(a) only","(a),(c)","(a),(b)","(c) only"], ans: 2, src: "TSNPDCL-15" },
+      { q: "Single-phase voltage controller: 220V, 50Hz, load=10Ω, 9 cycles ON and 7 cycles OFF. RMS output voltage and input power factor are", opts: ["170 V, 0.7","171 V, 0.78","165 V, 0.75","180 V, 0.6"], ans: 2, src: "TSNPDCL-15" },
+      { q: "A TRIAC in single-phase circuit at firing angle α supplying resistive load R. Power loss in load is", opts: ["(2V²sinα/2α)/πR","(V²/πR)[cos2α/2]","(V²/πR)[π-α+(sin2α/2)]","(V²/πR)[π+α-(sin2α/2)]"], ans: 2, src: "APTransco-17" },
+      { q: "Thyristor based 1-φ voltage regulator with firing angle α=90°. RMS output voltage is", opts: ["√2Vs/π","Vs/2","Vs/π","Vs/√2"], ans: 3, src: "APEPDCL-19" },
+      { q: "A power electronic controller develops symmetrical output from π/6 rad to π rad, 7π/6 to 2π rad across resistive load. Circuit contains", opts: ["a diode","two diodes in anti-parallel","a TRIAC","a SCR"], ans: 2, src: "APTransco-19" },
+    ]
+  },
+  {
+    name: "Unit 6: Electric Drives",
+    short: "U6",
+    questions: [
+      { q: "SCR operates at 1 kHz with TON=0.5ms. Motor: 200V dc, 1000 rpm, 10A. Neglecting armature resistance, speed at given duty cycle (Tm=constant) is", opts: ["1000 rpm","500 rpm","1500 rpm","750 rpm"], ans: 1, src: "APSPDCL-12" },
+      { q: "For speed control of AC drive, preferred method using thyristors is", opts: ["Phase control","Integral cycle control","Single pulse PWM control","Sinusoidal PWM control"], ans: 0, src: "Transco-12" },
+      { q: "A 440V, 3-phase, 10-pole, 50Hz synchronous motor delivering torque 50/π Nm delivers power of", opts: ["50 W","500 W","1000 W","2000 W"], ans: 2, src: "EPDCL-14" },
+      { q: "Speed of 3-φ, 2-pole, 60Hz synchronous motor is controlled by step-down 3-φ cycloconverter. Maximum speed of motor can be", opts: ["1200 rpm","3000 rpm","1000 rpm","3600 rpm"], ans: 0, src: "TSSPDCL-15" },
+      { q: "In a self-controlled synchronous motor fed from variable frequency inverter", opts: ["Rotor poles invariably have damper windings","There are stability problems","Speed of rotor decides stator frequency","Frequency of stator decides rotor speed"], ans: 2, src: "TSGenco-15" },
+      { q: "A 3-phase, 50Hz induction motor controlled by voltage source inverter. Frequency of rotor current at fifth harmonic is", opts: ["exactly equal to 250 Hz","less than 250 Hz","more than 250 Hz","equal to 50 Hz"], ans: 2, src: "HMWS-15" },
+      { q: "In an adjustable speed AC drive, which quantity gets reduced above rated speed?", opts: ["developed torque","stator frequency","reduced starting torque","stator current"], ans: 0, src: "APTransco-17" },
+      { q: "A single-phase half wave converter with freewheeling diode fed separately excited DC drive operates at 1000 rpm at α=45°. If replaced by single phase semi converter, motor rotates at", opts: ["2000 rpm","1500 rpm","1000 rpm","500 rpm"], ans: 0, src: "TSTransco-18" },
+      { q: "Three-phase full wave controlled rectifier to separately excited DC motor: TC=150Nm, ω=75 rad/s, Ia=50A. Back emf of motor is", opts: ["200 V","225 V","250 V","275 V"], ans: 1, src: "TSTransco-18" },
+      { q: "Separately excited DC motor: 1-phase SCR full-converter, 200V AC, draws 40A at α=45°. Armature resistance = 0.25Ω. Back emf is", opts: ["(200/π - 10) V","(200/π + 10) V","(400/π - 10) V","(400/π + 10) V"], ans: 2, src: "APTransco-19" },
+      { q: "In adjustable speed DC drive with armature voltage control up to base speed", opts: ["Torque increased linearly with speed","Torque decreased linearly with speed","Torque remains constant with speed","Power remains constant with speed"], ans: 2, src: "APTransco-19" },
+      { q: "It is required to drive a DC shunt motor at different speeds in both directions and also brake it in both directions. Which would you use?", opts: ["A dual converter","A half-controlled thyristor bridge","A full controlled thyristor bridge","A diode bridge"], ans: 0, src: "APEPDCL-19" },
+      { q: "Speed of separately excited DC motor controlled by 3-φ semi-converter from 440V, 50Hz supply. Ra=1Ω, torque constant=2Nm/A. Firing angle=45°. Back emf for torque of 50Nm is", opts: ["460 V","482 V","420 V","333 V"], ans: 1, src: "TSNPDCL-15" },
+      { q: "200V, 1000rpm, 100A DC motor, Ra=0.1Ω, fed from step-down chopper (Vs=300V). Duty cycle for motoring at rated torque and 500rpm is", opts: ["0.35","0.25","0.84","0.5"], ans: 0, src: "TSPSC-AEE-23" },
+      { q: "Constant V/f controlled induction motor within base speed. What is true about torque-speed characteristics?", opts: ["Starting torque decreases with decrease in frequency and max torque decreases","Starting torque increases with decrease in frequency and max torque remains unchanged","Starting torque decreases with decrease in frequency and max torque remains unchanged","Starting torque increases with decrease in frequency and max torque decreases"], ans: 1, src: "TSPSC-AEE-23" },
+      { q: "Which statement is correct for multi-loop closed-loop control of DC and AC drives with speed and current feedbacks?", opts: ["Output of current control provides the reference speed","Speed control loop is faster than current control loop","Speed and current control loops have equal bandwidth","Current control loop is faster than speed control loop"], ans: 3, src: "TSPSC-AEE023" },
+      { q: "Motor-load: T(motor)=0.1N-10 Nm, T(load)=0.25N-75 Nm. Steady state speed after exciting is", opts: ["666.3 rpm","433.3 rpm","0 rpm","700 rpm"], ans: 1, src: "TSPSC-AEE023" },
+      { q: "3-phase full controlled converter (6 SCRs only) feeding separately excited DC motor. Motor must also operate in Quadrant III. Suitable method is", opts: ["Connecting freewheeling diode across armature plus adjusting α","Adjusting triggering angle α only","Adjusting triggering angle α followed by armature connection reversal","Operating with triggering angle α > π/2"], ans: 2, src: "TSPSC-AEE023" },
+      { q: "Which armature voltage control method is employed when supply is DC?", opts: ["Static Ward-Leonard schemes","Ward-Leonard schemes","Transformers with taps and uncontrolled rectifier bridge","Chopper control"], ans: 3, src: "TSPSC-AEE023" },
+      { q: "In slip power recovery scheme of 3-phase induction motor drives, if power is injected into rotor from external source, motor speed is", opts: ["Motor speed reduces to zero","Motor speed is above synchronous speed","Motor speed is equal to synchronous speed","Motor speed is always below synchronous speed"], ans: 1, src: "TSPSC-AEE023" },
+      { q: "Which of the following is a type of AC drive?", opts: ["Only synchronous motor drives","Both induction and synchronous motor drives","Neither I nor II","Only induction motor drives"], ans: 1, src: "TSPSC-AEE-23" },
+    ]
+  }
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentUnit = 0;
+let currentQ = 0;
+let answered = {}; // {unitIdx_qIdx: chosenOption}
+let retryNeeded = {}; // {unitIdx_qIdx: true}
+let retryAnswered = {}; // choices made during the current Try Again round
+let savedQuestions = {}; // {unitIdx_qIdx: true}
+let mode = 'one'; // 'one' | 'all' | 'try'
+
+function unitKey(u, q) { return `${u}_${q}`; }
+
+function getUnit() { return UNITS[currentUnit]; }
+function getQuestions() { return getUnit().questions; }
+
+// ─── SCORE ───────────────────────────────────────────────────────────────────
+function calcScore() {
+  let correct = 0, total = 0;
+  Object.entries(answered).forEach(([key, choice]) => {
+    const [u, q] = key.split('_').map(Number);
+    if (choice === UNITS[u].questions[q].ans) correct++;
+    total++;
+  });
+  return { correct, total };
+}
+
+function updateHeader() {
+  const { correct, total } = calcScore();
+  document.getElementById('hdr-score').textContent = `${correct}/${total}`;
+  const allQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
+  document.getElementById('hdr-progress').style.width = (total / allQ * 100) + '%';
+}
+
+// ─── UNIT TABS ────────────────────────────────────────────────────────────────
+function renderUnitTabs() {
+  const el = document.getElementById('unit-tabs');
+  el.innerHTML = '';
+  // "All" tab
+  const allTab = document.createElement('button');
+  allTab.className = 'unit-tab' + (currentUnit === -1 ? ' active' : '');
+  allTab.textContent = 'All Units';
+  allTab.onclick = () => { currentUnit = -1; currentQ = 0; render(); };
+  el.appendChild(allTab);
+
+  UNITS.forEach((u, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'unit-tab' + (currentUnit === i ? ' active' : '');
+    btn.textContent = u.short + ': ' + u.name.split(':')[1].trim().substring(0,18);
+    btn.onclick = () => { currentUnit = i; currentQ = 0; render(); };
+    el.appendChild(btn);
+  });
+}
+
+// ─── DOT ROW (one-by-one mode) ───────────────────────────────────────────────
+function renderDots() {
+  const el = document.getElementById('dot-row');
+  el.innerHTML = '';
+  if (mode !== 'one') return;
+  const qs = getDisplayQuestions();
+  qs.forEach((item, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    const key = unitKey(item.unitIdx, item.qIdx);
+    if (answered[key] !== undefined) {
+      dot.classList.add(answered[key] === item.q.ans ? 'correct' : 'wrong');
+    }
+    if (idx === currentQ) dot.classList.add('current');
+    dot.onclick = () => { currentQ = idx; renderQuestionArea(); renderDots(); renderNav(); };
+    el.appendChild(dot);
+  });
+}
+
+// ─── BUILD DISPLAY QUESTION LIST ─────────────────────────────────────────────
+function getBaseQuestions() {
+  if (currentUnit === -1) {
+    // All units
+    const all = [];
+    UNITS.forEach((u, ui) => u.questions.forEach((q, qi) => all.push({ q, unitIdx: ui, qIdx: qi })));
+    return all;
+  }
+  return getQuestions().map((q, qi) => ({ q, unitIdx: currentUnit, qIdx: qi }));
+}
+
+function getDisplayQuestions() {
+  const qs = getBaseQuestions();
+  if (mode === 'try') {
+    return qs.filter(({ unitIdx, qIdx }) => {
+      const key = unitKey(unitIdx, qIdx);
+      return retryNeeded[key] || savedQuestions[key];
+    });
+  }
+  return qs;
+}
+
+function toggleSave(key) {
+  if (savedQuestions[key]) {
+    delete savedQuestions[key];
+  } else {
+    savedQuestions[key] = true;
+  }
+  render();
+}
+
+// ─── RENDER ONE QUESTION ──────────────────────────────────────────────────────
+function buildCard(item, showAll) {
+  const { q, unitIdx, qIdx } = item;
+  const key = unitKey(unitIdx, qIdx);
+  const isTryMode = mode === 'try';
+  const chosen = isTryMode ? retryAnswered[key] : answered[key];
+  const hasFeedback = chosen !== undefined;
+  const isLocked = hasFeedback && (!isTryMode || chosen === q.ans);
+  const isSaved = !!savedQuestions[key];
+
+  const card = document.createElement('div');
+  card.className = 'q-card' + (hasFeedback ? ' answered' : '');
+  card.id = 'card-' + key;
+
+  // meta
+  const meta = document.createElement('div');
+  meta.className = 'q-meta';
+  const num = document.createElement('span');
+  num.className = 'q-num';
+  const qs = getDisplayQuestions();
+  const globalIdx = qs.findIndex(x => x.unitIdx === unitIdx && x.qIdx === qIdx);
+  num.textContent = 'Q' + (globalIdx + 1);
+  const src = document.createElement('span');
+  src.className = 'q-source';
+  src.textContent = q.src;
+  meta.appendChild(num);
+  meta.appendChild(src);
+  if (isSaved) {
+    const savedTag = document.createElement('span');
+    savedTag.className = 'q-num';
+    savedTag.style.color = 'var(--correct)';
+    savedTag.textContent = 'Saved';
+    meta.appendChild(savedTag);
+  }
+  if (currentUnit === -1) {
+    const unitTag = document.createElement('span');
+    unitTag.className = 'q-num';
+    unitTag.style.color = '#7c5cfc';
+    unitTag.textContent = UNITS[unitIdx].short;
+    meta.appendChild(unitTag);
+  }
+  card.appendChild(meta);
+
+  // question text
+  const qt = document.createElement('p');
+  qt.className = 'q-text';
+  qt.textContent = q.q;
+  card.appendChild(qt);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn';
+  saveBtn.style.marginBottom = '14px';
+  saveBtn.textContent = isSaved ? 'Saved' : 'Save';
+  saveBtn.onclick = () => toggleSave(key);
+  card.appendChild(saveBtn);
+
+  // options
+  const opts = document.createElement('div');
+  opts.className = 'options';
+  q.opts.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (hasFeedback) {
+      btn.disabled = isLocked;
+      if (oi === q.ans) {
+        btn.classList.add(chosen === q.ans ? 'correct' : 'reveal-correct');
+      }
+      if (oi === chosen && chosen !== q.ans) btn.classList.add('wrong');
+    }
+    btn.onclick = () => answer(key, oi, card, q);
+
+    const letter = document.createElement('span');
+    letter.className = 'opt-letter';
+    letter.textContent = ['A','B','C','D'][oi];
+    btn.appendChild(letter);
+
+    const txt = document.createTextNode(opt);
+    btn.appendChild(txt);
+    opts.appendChild(btn);
+  });
+  card.appendChild(opts);
+
+  // result pill (if answered)
+  if (hasFeedback) {
+    const pill = document.createElement('div');
+    pill.className = 'result-pill ' + (chosen === q.ans ? 'correct' : 'wrong');
+    pill.innerHTML = chosen === q.ans ? '✓ Correct!' : (isTryMode ? '✗ Try once more' : '✗ Incorrect');
+    card.appendChild(pill);
+
+    // solution hint
+    if (q.note) {
+      const sol = document.createElement('div');
+      sol.className = 'solution-box visible';
+      sol.innerHTML = `<strong>Note:</strong> ${q.note}`;
+      card.appendChild(sol);
+    }
+  }
+
+  return card;
+}
+
+function answer(key, choice, card, q) {
+  if (answered[key] !== undefined && mode !== 'try') return;
+  if (mode === 'try' && retryAnswered[key] === q.ans) return;
+  if (mode !== 'try' && answered[key] === q.ans) return;
+
+  const currentItem = getDisplayQuestions().find(x => unitKey(x.unitIdx, x.qIdx) === key);
+  if (!currentItem) return;
+
+  if (mode === 'try') {
+    retryAnswered[key] = choice;
+  }
+
+  answered[key] = choice;
+
+  if (choice === q.ans) {
+    delete retryNeeded[key];
+    if (!savedQuestions[key]) delete retryAnswered[key];
+  } else {
+    retryNeeded[key] = true;
+  }
+
+  if (mode === 'try' && choice === q.ans) {
+    updateHeader();
+    renderDots();
+    const remaining = getDisplayQuestions();
+    if (remaining.length === 0) {
+      setTimeout(() => showTryAgainComplete(), 500);
+    } else if (savedQuestions[key]) {
+      const newCard = buildCard(currentItem, false);
+      card.parentNode.replaceChild(newCard, card);
+    } else {
+      currentQ = Math.min(currentQ, remaining.length - 1);
+      setTimeout(() => render(), 500);
+    }
+    return;
+  }
+
+  // rebuild card in place
+  const parent = card.parentNode;
+  const newCard = buildCard(
+    currentItem,
+    mode === 'all'
+  );
+  parent.replaceChild(newCard, card);
+  updateHeader();
+  renderDots();
+  // auto advance in one-by-one
+  if (mode === 'one') {
+    const qs = getDisplayQuestions();
+    if (currentQ < qs.length - 1) {
+      setTimeout(() => { currentQ++; render(); }, 800);
+    } else {
+      setTimeout(() => showSummary(), 1200);
+    }
+  }
+}
+
+function renderQuestionArea() {
+  const area = document.getElementById('questions-area');
+  area.innerHTML = '';
+  const qs = getDisplayQuestions();
+  if (mode === 'one' || mode === 'try') {
+    if (qs.length === 0) {
+      area.innerHTML = mode === 'try'
+        ? '<div class="empty">No incorrect questions here. Nice work.</div>'
+        : '<div class="empty">No questions in this unit.</div>';
+      return;
+    }
+    const item = qs[Math.min(currentQ, qs.length-1)];
+    area.appendChild(buildCard(item, false));
+  } else {
+    qs.forEach(item => area.appendChild(buildCard(item, true)));
+  }
+}
+
+function renderNav() {
+  const nav = document.getElementById('nav-bar');
+  const total = getDisplayQuestions().length;
+  if ((mode === 'one' || mode === 'try') && total > 0) {
+    nav.style.display = 'flex';
+    document.getElementById('q-idx').textContent = currentQ + 1;
+    document.getElementById('q-total').textContent = total;
+  } else {
+    nav.style.display = 'none';
+  }
+}
+
+function navigate(dir) {
+  const qs = getDisplayQuestions();
+  currentQ = Math.max(0, Math.min(qs.length - 1, currentQ + dir));
+  renderQuestionArea();
+  renderDots();
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setMode(m) {
+  mode = m;
+  if (m === 'try') retryAnswered = {};
+  document.getElementById('mode-one').classList.toggle('active', m === 'one');
+  document.getElementById('mode-all').classList.toggle('active', m === 'all');
+  document.getElementById('mode-try').classList.toggle('active', m === 'try');
+  currentQ = 0;
+  render();
+}
+
+function render() {
+  renderUnitTabs();
+  renderDots();
+  renderQuestionArea();
+  renderNav();
+  updateHeader();
+}
+
+function showSummary() {
+  const qs = getDisplayQuestions();
+  const total = qs.length;
+  let correct = 0;
+  qs.forEach(({ unitIdx, qIdx, q }) => {
+    const key = unitKey(unitIdx, qIdx);
+    if (answered[key] === q.ans) correct++;
+  });
+  const wrong = qs.filter(({ unitIdx, qIdx }) => {
+    const key = unitKey(unitIdx, qIdx);
+    return answered[key] !== undefined && answered[key] !== UNITS[unitIdx].questions[qIdx].ans;
+  }).length;
+
+  const area = document.getElementById('questions-area');
+  area.innerHTML = '';
+  const nav = document.getElementById('nav-bar');
+  nav.style.display = 'none';
+
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+  card.innerHTML = `
+    <h2>Unit Complete! 🎉</h2>
+    <p>Here's how you did on this session</p>
+    <div class="summary-stats">
+      <div class="stat"><div class="stat-val green">${correct}</div><div class="stat-label">Correct</div></div>
+      <div class="stat"><div class="stat-val red">${wrong}</div><div class="stat-label">Wrong</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--accent)">${Math.round(correct/total*100)}%</div><div class="stat-label">Score</div></div>
+    </div>
+    <button class="btn primary" onclick="restartUnit()">Restart This Unit</button>
+    ${wrong ? "<button class=\"btn\" style=\"margin-left:12px\" onclick=\"setMode('try')\">Try Again</button>" : ''}
+    <button class="btn" style="margin-left:12px" onclick="reviewAnswers()">Review Answers</button>
+  `;
+  area.appendChild(card);
+  document.getElementById('dot-row').innerHTML = '';
+}
+
+function restartUnit() {
+  const qs = getDisplayQuestions();
+  qs.forEach(({ unitIdx, qIdx }) => {
+    const key = unitKey(unitIdx, qIdx);
+    delete answered[key];
+    delete retryNeeded[key];
+    delete retryAnswered[key];
+    delete savedQuestions[key];
+  });
+  currentQ = 0;
+  render();
+}
+
+function reviewAnswers() {
+  mode = 'all';
+  document.getElementById('mode-one').classList.remove('active');
+  document.getElementById('mode-all').classList.add('active');
+  document.getElementById('mode-try').classList.remove('active');
+  render();
+}
+
+function showTryAgainComplete() {
+  const area = document.getElementById('questions-area');
+  area.innerHTML = '';
+  document.getElementById('nav-bar').style.display = 'none';
+  document.getElementById('dot-row').innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+  card.innerHTML = `
+    <h2>Try Again Complete!</h2>
+    <p>All incorrect questions in this section are now corrected.</p>
+    <button class="btn primary" onclick="setMode('one')">Continue Practice</button>
+    <button class="btn" style="margin-left:12px" onclick="reviewAnswers()">Review Answers</button>
+  `;
+  area.appendChild(card);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
